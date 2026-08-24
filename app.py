@@ -1,3 +1,4 @@
+import create_table
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify, flash
 import sqlite3
 import uuid
@@ -44,9 +45,10 @@ def admin_required(f):
             return redirect(url_for('auth.login')) 
         return f(*args, **kwargs)
     return decorated_function
-
+ 
 # Database Initialization
 with app.app_context():
+    creat_table.creat_tables()
     database.init_db()
     conn = database.get_db_connection()
     
