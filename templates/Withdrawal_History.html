@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal History</title>
+    <!-- خوبصورت آئیکنز کے لیے FontAwesome شامل کی ہے تاکہ کاپی بٹن کام کرے -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #1a1f2c; 
+            color: #ffffff;
+            padding: 20px; 
+            margin: 0;
+        }
+        h2 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .history-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .history-card { 
+            background: #242b38; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            border-left: 5px solid #6c5ce7;
+            transition: transform 0.2s;
+        }
+        .history-card:hover {
+            transform: translateY(-2px);
+        }
+        /* اسٹیٹس کلرز اور بارڈرز */
+        .card-pending { border-left-color: #f1c40f; }
+        .card-approved { border-left-color: #2ecc71; }
+        .card-rejected { border-left-color: #e74c3c; }
+
+        .flex-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .amount { 
+            font-size: 1.4em; 
+            font-weight: bold; 
+            color: #ffffff; 
+        }
+        .coins {
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.95em;
+            color: #b2bec3;
+            margin-top: 15px;
+            background: rgba(0,0,0,0.15);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .detail-item strong {
+            color: #ffffff;
+        }
+        .divider { 
+            border-top: 1px solid #343f54; 
+            margin: 15px 0; 
+        }
+        
+        /* اسٹیٹس بیجز */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-pending {
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+        }
+        .badge-approved {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+        }
+        
+        /* بلنکنگ اینیمیشن پینڈنگ کے لیے */
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #f1c40f;
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        /* ٹرانزیکشن آئی ڈی سیکشن */
+        .trx-box {
+            background: #1a1f2c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            margin-top: 10px;
+            border: 1px dashed #454f63;
+        }
+        .trx-id {
+            color: #00cec9;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .copy-btn {
+            color: #b2bec3;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+        .copy-btn:hover {
+            color: #00cec9;
+        }
+        .date-text {
+            font-size: 0.8em;
+            color: #747d8c;
+            text-align: right;
+            margin-top: 8px;
+        }
+        .no-data {
+            text-align: center;
+            color: #b2bec3;
+            padding: 4px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="history-container">
+    <h2>Withdrawal History</h2>
+
+    {% for item in history %}
+    <!-- اسٹیٹس کے مطابق کارڈ کا بارڈر کلر خود ہی بدل جائے گا -->
+    <div class="history-card {% if item.status == 'pending' or item.status == 'Pending' %}card-pending{% else %}card-approved{% endif %}">
+        
+        <!-- پہلی لائن: رقم اور کوائنز -->
+        <div class="flex-row">
+            <div class="amount">{{ item.amount }} PKR</div>
+            <div class="coins"><i class="fas fa-coins"></i> {{ item.coins }} Coins</div>
+        </div>
+
+        <!-- دوسری لائن: اسٹیٹس اور آرڈر آئی ڈی -->
+        <div class="flex-row" style="margin-bottom: 0;">
+            <span class="order-id" style="color: #747d8c; font-size: 0.85em;">Order ID: #{{ item.id }}</span>
+            
+            {% if item.status == 'pending' or item.status == 'Pending' %}
+                <span class="status-badge badge-pending">
+                    <span class="dot"></span> Under Process
+                </span>
+            {% else %}
+                <span class="status-badge badge-approved">
+                    <i class="fas fa-check-circle"></i> Successful
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- ڈراپ ڈاؤن ڈیٹا گرڈ: اکاؤنٹ اور طریقہ کار -->
+        <div class="details-grid">
+            <div class="detail-item">
+                <strong>Method:</strong> {{ item.method }}
+            </div>
+            <div class="detail-item">
+                <!-- یہاں آپ کا پورا اکاؤنٹ نمبر شو ہوگا کیونکہ یوزر کو اپنی ہسٹری میں پورا دکھنا بہتر ہے -->
+                <strong>Account:</strong> {{ item.account_number }}
+            </div>
+        </div>
+
+        <!-- ٹرانزیکشن آئی ڈی سیکشن (کلیم اور کمپلین کے لیے بہترین) -->
+        <div class="trx-box">
+            <span><strong>Trx ID:</strong> 
+                <span id="trx-{{ item.id }}" class="trx-id">{{ item.trx_id if item.trx_id else 'Processing...' }}</span>
+            </span>
+            {% if item.trx_id %}
+            <button class="copy-btn" onclick="copyTrx('trx-{{ item.id }}')" title="Copy Trx ID">
+                <i class="fas fa-copy"></i>
+            </button>
+            {% endif %}
+        </div>
+
+        <!-- تاریخ -->
+        <div class="date-text">
+            <i class="far fa-calendar-alt"></i> {{ item.timestamp }}
+        </div>
+    </div>
+    {% else %}
+    <div class="no-data">
+        <i class="fas fa-history style-fa" style="font-size: 3em; color: #454f63; margin-bottom: 10px;"></i>
+        <p>No withdrawal requests found yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- کاپی کرنے اور آٹو ریفریش کا اسکرپٹ -->
+<script>
+    // ٹرانزیکشن آئی ڈی کاپی کرنے کا فنکشن
+    function copyTrx(elementId) {
+        var textToCopy = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(textToCopy).then(function() {
+            alert("Transaction ID copied successfully!");
+        }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+
+    // 30 سیکنڈ بعد آٹو ریفریش
+    setTimeout(function(){
+       window.location.reload(1);
+    }, 30000);
+</script>
+
+</body>
+</html>

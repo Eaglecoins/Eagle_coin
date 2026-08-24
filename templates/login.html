@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Login</title>
+    <!-- Font Awesome Icons کے لیے -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+      
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(15, 23, 42, 0.35), rgba(15, 23, 42, 0.45)), 
+            url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .login-card {
+            background: rgba(22, 31, 48, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 35px 30px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .back-home:hover {
+            color: #f39c12;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .logo-container i {
+            font-size: 45px;
+            color: #f39c12;
+            background: rgba(243, 156, 18, 0.1);
+            padding: 15px;
+            border-radius: 50%;
+        }
+
+        .login-card h2 {
+            text-align: center;
+            color: #f39c12;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Flask Flash Messages */
+        .alert {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .alert-error {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #a3b1c2;
+        }
+
+        .input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-box i.input-icon {
+            position: absolute;
+            left: 12px;
+            color: #6e7681;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px 40px 12px 38px;
+            background: #0d1424;
+            border: 1px solid #2a364f;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-box input:focus {
+            border-color: #f39c12;
+            box-shadow: 0 0 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            color: #6e7681;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #a3b1c2;
+            cursor: pointer;
+        }
+
+        .remember-me input {
+            accent-color: #f39c12;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            color: #f39c12;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #f39c12, #d35400);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #6e7681;
+            font-size: 12px;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #2a364f;
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .social-login {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-social {
+            flex: 1;
+            padding: 10px;
+            background: #0d1424;
+            border: 1px solid #2a364f;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .btn-social:hover {
+            background: #162135;
+            border-color: #f39c12;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #a3b1c2;
+        }
+
+        .footer-text a {
+            color: #f39c12;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+          }
+          
+          .site-logo {
+            width: 120px;            /* لوگو کی چوڑائی */
+            height: 120px;           /* لوگو کی لمبائی */
+            object-fit: cover;     /* تصویر کو خراب ہونے سے بچانے کے لیے */
+            border-radius: 50%;     /* دائرہ (Circle) بنانے کے لیے */
+            border: 2px solid #f39c12; /* زرد بارڈر (آپ ہٹا بھی سکتے ہیں) */
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
+          }
+          </style>
+          </head>
+          <body>
+
+    <div class="login-card">
+        <!-- Back to Home -->
+        <a href="/" class="back-home"><i class="fa-solid fa-arrow-left"></i> Home</a>
+
+        <!-- Logo Area -->
+        <!-- نیا کوڈ (تصویر کے لیے): -->
+      <div class="logo-container">
+        <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="site-logo">
+      </div>
+
+        <h2>Account Login</h2>
+
+        <!-- Flash Messages (پائتھن ایررز کے لیے) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="/login" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <!-- Username Input -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-user input-icon"></i>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember"> Remember Me
+                </label>
+                <a href="{{ url_for('forgot_password') }}" class="forgot-link">یہاں کلک کریں Forget Password?</a> 
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="btn-submit">Login Now</button>
+        </form>
+
+        <!-- Social Login Divider -->
+        <div class="divider">OR</div>
+
+        <!-- Social Login Buttons -->
+        <div class="social-login">
+            <button class="btn-social">
+                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Google
+            </button>
+        </div>
+
+        <!-- Register Link -->
+        <div class="footer-text">
+            Don't have an account? <a href="/register">Register here</a>
+        </div>
+    </div>
+
+    <!-- Password Show/Hide JavaScript -->
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
+</body>
+</html>

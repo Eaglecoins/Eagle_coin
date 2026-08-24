@@ -1,0 +1,31 @@
+# 1. Secret Environment Variables (سب سے اہم)
+.env
+
+# 2. Database Files (ڈیٹا بیس اور اس کا بیک اپ)
+*.db
+*.sqlite3
+database.db
+
+# 3. Cache & Logs (عارضی فائلیں اور لاگز)
+__pycache__/
+*.py[cod]
+*$py.class
+app_errors.log
+
+# 4. Virtual Environments
+venv/
+env/
+ENV/
+
+# 5. IDE & System Files
+.vscode/
+.idea/
+.DS_Store
+
+# 6. Extra / Personal Files (پی ڈی ایف، ایکسل اور پریزنٹیشن)
+*.pdf
+*.pptx
+*.xlsx
+Eagle Coin.xlsx
+Modern AI Fintech Presentation 2.pdf
+Modern AI Fintech Presentation.pptx

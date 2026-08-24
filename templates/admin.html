@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Static CSS Link -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        body { background-color: #000; color: #fff; font-family: 'Urbanist', sans-serif; padding: 20px; }
+        h3 { color: #deff9a; margin-bottom: 20px; }
+        .stats-container { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .stat-box { background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #333; min-width: 180px; text-align: center; }
+        .highlight-number { font-size: 24px; color: #deff9a; font-weight: 700; }
+        .number-label { font-size: 12px; text-transform: uppercase; color: #FFFF00; }
+        .tab-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 10px; background: #1a1a1a; border-radius: 12px; border: 1px solid #333; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 16px; background: #333; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .tab-btn.active { background: #deff9a; color: #000; }
+        .tab-content { display: none; }
+        .screenshot-img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; cursor: pointer; }
+        .tab-content { 
+            margin-top: 25px; 
+            background: #111; 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid #222;
+            overflow-x: auto;
+        }
+        .table th, .table td { vertical-align: middle; }
+    </style>
+</head>
+<body class="admin-bg">
+    <a href="/admin_logout" style="background-color: red; color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; float: right;">Logout</a>
+
+<div class="stats-container">
+    <div class="stat-box"><div class="number-label">Total Users</div><div class="highlight-number">{{ total_users }}</div></div>
+    <div class="stat-box"><div class="number-label">Pending Users</div><div class="highlight-number">{{ pending }}</div></div>
+    <div class="stat-box"><div class="number-label">Approved Users</div><div class="highlight-number">{{ approved }}</div></div>
+    <div class="stat-box"><div class="number-label">Total Coins</div><div class="highlight-number">{{ total_system_coins }}</div></div>
+    
+    <!-- TOTAL BALANCE -->
+    <div class="stat-box">
+        <div class="number-label">TOTAL BALANCE</div>
+        <div class="highlight-number">{{ total_balance }}</div>
+    </div>
+    
+    <div class="stat-box">
+        <div class="number-label">Coins Rate</div>
+        <div class="highlight-number">{{ coin_rate|default('0.0000') }}</div>
+    </div>
+</div>
+
+<!-- Form 1: Total Balance Update -->
+<div style="text-align: center; margin-top: 10px;">
+    <form action="/update_total_balance" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="number" name="balance_amount" step="any" placeholder="Amount" style="width: 80px;" required>
+        <button type="submit" name="action" value="add" class="btn btn-sm btn-success">+</button>
+        <button type="submit" name="action" value="subtract" class="btn btn-sm btn-danger">-</button>
+    </form>
+</div>
+
+<!-- Navigation Tabs -->
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab(this, 'user-management')">User Management</button>
+    <button class="tab-btn" onclick="showTab(this, 'pending-deposits')">Pending Deposits</button>
+    <button class="tab-btn" onclick="showTab(this, 'approved-deposits')">Approved Deposits</button>
+    <button class="tab-btn" onclick="showTab(this, 'pending-withdrawals')">Pending Withdrawals</button>
+    <button class="tab-btn" onclick="showTab(this, 'approved-withdrawals')">Approved Withdrawals</button>
+    <button class="tab-btn" onclick="showTab(this, 'announcements-tab')">Announcements / Posts</button>
+    <button class="tab-btn" onclick="showTab(this, 'activity-logs')">Logs</button>
+    <button class="tab-btn position-relative" onclick="showTab(this, 'password-requests')">
+        Password Requests
+        {% if password_requests and password_requests|length > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ password_requests|length }}
+            </span>
+        {% endif %}
+    </button>
+</div>
+
+<div class="stats-container">
+    <div class="stat-box"><div class="number-label">User Coins</div><div class="highlight-number">{{ total_user_coins }}</div></div>
+    <div class="stat-box"><div class="number-label">Available Coins</div><div class="highlight-number">{{ available_coins }}</div></div>
+    <div class="stat-box"><div class="number-label">Total System Coins</div><div class="highlight-number">{{ total_system_coins }}</div></div>
+</div>
+
+<!-- Form 2: Admin Balance Controls -->
+<div style="margin: 30px auto; max-width: 500px; border: 1px solid #333; padding: 20px; border-radius: 12px; background: #111; clear: both;">
+    <h4 style="color: #deff9a; text-align: center; margin-bottom: 15px; font-size: 18px; font-weight: 700;">Admin Balance Controls</h4>
+    <form action="/update_admin_balance" method="POST" class="d-flex justify-content-center gap-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <input type="number" name="amount" step="any" class="form-control" placeholder="Amount" style="width: 150px; background: #222; color: #fff; border: 1px solid #444;" required>
+        <button type="submit" name="action" value="add" class="btn btn-success" style="padding: 6px 16px; font-weight: bold;">+</button>
+        <button type="submit" name="action" value="subtract" class="btn btn-danger" style="padding: 6px 16px; font-weight: bold;">-</button>
+    </form>
+</div>
+
+<!-- ================= User Management Section ================= -->
+<div id="user-management" class="tab-content" style="display: block;">
+    <h3>User Management</h3>
+    
+    <!-- GET Filter Form (Needs no CSRF) -->
+    <form method="GET" action="/admin" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="text" name="target_username" placeholder="Search Username..." class="form-control form-control-sm" style="width: 180px;" value="{{ request.args.get('target_username', '') }}">
+        <input type="date" name="search_date" class="form-control form-control-sm" style="width: 160px;" value="{{ request.args.get('search_date', '') }}">
+        
+        <select name="filter_type" class="form-control form-control-sm" style="width: 160px;">
+            <option value="">-- All Filters --</option>
+            <option value="direct" {% if request.args.get('filter_type') == 'direct' %}selected{% endif %}>Direct Referrals</option>
+            <option value="indirect" {% if request.args.get('filter_type') == 'indirect' %}selected{% endif %}>Indirect Referrals</option>
+            <option value="pending" {% if request.args.get('filter_type') == 'pending' %}selected{% endif %}>Pending Accounts</option>
+        </select>
+
+        <button type="submit" class="btn btn-success btn-sm">Filter / Search</button>
+        <a href="/admin" class="btn btn-secondary btn-sm">Reset</a>
+    </form>
+
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>User Details</th>
+                <th>Identity Details</th>
+                <th>Fee Proof & Trx</th>
+                <th>Coins</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if users %}
+            {% for user in users %}
+            <tr>
+                <td>
+                    {% if user['profile_pic'] and user['profile_pic'] != 'default.png' %}
+                    <a href="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; cursor: pointer;" title="Click to view full image">
+                    </a>
+                    {% else %}
+                    <div style="width: 45px; height: 45px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px;">No Pic</div>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <strong>{{ user['name'] if user['name'] else user['username'] }}</strong><br>
+                    <small style="color: #00cec9;">@{{ user['username'] }}</small><br>
+                    <small style="color: #aaa;"><i class="fas fa-phone"></i> {{ user['mobile_no'] }}</small><br>
+                    <small style="color: #aaa;"><i class="fas fa-clock"></i> Joined: {{ user['created_at'] }}</small>
+                </td>
+
+                <td>
+                    <small><strong>CNIC:</strong> {{ user['id_card'] if user['id_card'] else 'N/A' }}</small><br>
+                    <small><strong>Father:</strong> {{ user['father_name'] if user['father_name'] else 'N/A' }}</small><br>
+                    <small style="color: #aaa;">{{ user['city'] if user['city'] else '' }} {{ user['region'] if user['region'] else '' }}</small>
+                </td>
+
+                <td>
+                    <small><strong>Method:</strong> {{ user['payment_method'] if user['payment_method'] else 'N/A' }}</small><br>
+                    <small><strong>Trx ID:</strong> <span style="color: #f59e0b; font-weight: bold;">{{ user['trx_id'] if user['trx_id'] else 'N/A' }}</span></small><br>
+                    {% set proof = user['deposit_proof'] or user['payment_screenshot'] %}
+                    {% if proof %}
+                        <a href="{{ url_for('static', filename='uploads/' + proof) }}" target="_blank">
+                            <img src="{{ url_for('static', filename='uploads/' + proof) }}" class="screenshot-img" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-top: 3px;">
+                        </a>
+                    {% else %}
+                        <span style="color: #777; font-size: 11px;">No Proof</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <span style="color: #deff9a; font-weight: bold;">{{ "{:.4f}".format(user.coins) if user.coins is defined else '0.0000' }}</span>
+                </td>
+
+                <td>
+                    {% if user['status'] == 'approved' %}
+                        <span class="badge bg-success">Approved</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if user['status'] == 'pending' %}
+                        <form action="/approve/{{ user['id'] }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-sm btn-success" style="margin-bottom: 2px;">Approve</button>
+                        </form>
+                    {% endif %}
+                    <form action="/delete_user/{{ user['id'] }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('کیا آپ واقعی اس یوزر کو ڈیلیٹ کرنا چاہتے ہیں؟');">
+                            Delete
+                        </button>
+                    </form>
+                    <!-- Form 3: Add Coins to User -->
+                    <form action="/update_coins/{{ user['id'] }}/add" method="POST" style="display:inline-flex; align-items:center; gap: 3px; margin-top: 5px;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="number" name="amount" step="any" placeholder="Coins" style="width: 70px; padding: 2px 5px;" required>
+                    <!-- Add Button -->
+                     <button type="submit" class="btn btn-sm btn-primary">+</button>
+    
+                    <!-- Deduct Button -->
+                     <button type="submit" formaction="/update_coins/{{ user['id'] }}/subtract" class="btn btn-sm btn-danger">-</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted">کوئی یوزر موجود نہیں ہے۔</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 15px; display: flex; justify-content: center; gap: 5px;">
+        {% for p in range(1, total_pages + 1) %}
+            <a href="/admin?page={{ p }}&search_user={{ request.args.get('search_user', '') }}&search_date={{ request.args.get('search_date', '') }}" 
+               class="btn btn-sm {% if p == page %}btn-success{% else %}btn-outline-light{% endif %}">
+               {{ p }}
+            </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ==================== Password Recovery Requests Section ================= -->
+<div id="password-requests" class="tab-content" style="display: none;">
+    <h3>Password Recovery Requests</h3>
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>ID Card / CNIC</th>
+                <th>Mobile No</th>
+                <th>Profile Pic</th>
+                <th>CNIC Pic</th>
+                <th>Action & New Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in password_requests %}
+            <tr>
+                <td>{{ req.username }}</td>
+                <td>{{ req.id_card }}</td>
+                <td>{{ req.mobile }}</td>
+                <td>
+                    {% if req.profile_pic %}
+                        <a href="{{ url_for('static', filename='uploads/' + req.profile_pic) }}" target="_blank">View Profile</a>
+                    {% else %}
+                        <span style="color: #777; font-style: italic;">No Image</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if req.cnic_pic %}
+                        <a href="{{ url_for('static', filename='uploads/' + req.cnic_pic) }}" target="_blank">View CNIC</a>
+                    {% else %}
+                        <span style="color: #777; font-style: italic;">No Image</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <!-- Form 4: Reset & Approve Password -->
+                        <form action="{{ url_for('admin.reset_password_request', req_id=req.id) }}" method="POST" style="display: flex; gap: 5px; margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <input type="text" name="new_password" placeholder="Enter New Password" required class="form-control form-control-sm" style="width: 160px;">
+                            <button type="submit" class="btn btn-success btn-sm" style="white-space: nowrap;">Reset & Approve</button>
+                        </form>
+
+                        <!-- Form 5: Delete Password Request -->
+                        <form action="{{ url_for('admin.delete_password_request', req_id=req.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('کیا آپ واقعی اس ریکویسٹ کو ڈیلیٹ کرنا چاہتے ہیں؟');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-danger btn-sm" style="white-space: nowrap;">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #aaa;">No pending password recovery requests.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Pending Deposits Section ================= -->
+<div id="pending-deposits" class="tab-content" style="display: none;">
+    <h3>Pending Deposits</h3>
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Coins Applied</th>
+                <th>Amount (PKR)</th>
+                <th>Status</th>
+                <th>Screenshot / Proof</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in pending_deposits %}
+            <tr>
+                <td>{{ d.username }}</td>
+                <td>{{ d.coins }}</td>
+                <td>{{ d.amount }}</td>
+                <td><span class="badge bg-warning text-dark">Pending</span></td>
+                <td>
+                    {% if d.payment_proof %}
+                    <a href="{{ url_for('static', filename='uploads/' + d.payment_proof) }}" target="_blank" class="btn btn-sm btn-info" style="color: #fff; font-weight: bold; text-decoration: none; padding: 4px 10px; border-radius: 4px;">View Proof</a>
+                    {% else %}
+                    <span style="color: #777; font-style: italic;">No Proof</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/approve_deposit/{{ d.id }}" class="btn btn-success btn-sm">Approve & Add Coins</a>
+                    <a href="/delete_deposit/{{ d.id }}" class="btn btn-danger btn-sm" onclick="return confirm('کیا آپ واقعی اس ڈیپوزٹ کو ڈیلیٹ کرنا چاہتے ہیں؟');">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not pending_deposits %}
+            <tr><td colspan="6" class="text-center text-muted">کوئی پینڈنگ ڈپازٹ درخواست موجود نہیں ہے۔</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Approved Deposits Section ================= -->
+<div id="approved-deposits" class="tab-content" style="display: none;">
+    <h3>Approved Deposits History</h3>
+    <div class="d-flex gap-2 mb-3">
+        <input type="text" id="depositSearchInput" class="form-control bg-dark text-light border-secondary" placeholder="Search Username or Trx ID..." style="max-width: 300px;">
+        <button type="button" onclick="searchTable('depositSearchInput', 'approvedDepositsTable')" class="btn btn-success px-4 fw-bold">Filter / Search</button>
+        <button type="button" onclick="resetSearch('depositSearchInput', 'approvedDepositsTable')" class="btn btn-secondary px-3">Reset</button>
+    </div>
+    <table id="approvedDepositsTable" class="table table-dark table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Amount (PKR)</th>
+                <th>Coins Credited</th>
+                <th>Trx ID</th>
+                <th>Status</th>
+                <th>Screenshot / Proof</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in approved_deposits %}
+            <tr>
+                <td><strong>{{ d.username }}</strong></td>
+                <td>{{ d.amount }}</td>
+                <td>{{ d.coins }}</td>
+                <td><code>{{ d.trx_id if d.trx_id else (d.transaction_id if d.transaction_id else 'N/A') }}</code></td>
+                <td><span class="badge bg-success">Approved</span></td>
+                <td>
+                    {% if d.payment_proof %}
+                    <a href="{{ url_for('static', filename='uploads/' + d.payment_proof) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='uploads/' + d.payment_proof) }}" class="screenshot-img" alt="Proof" style="max-width: 50px; border-radius: 4px;">
+                    </a>
+                    {% elif d.proof %}
+                    <a href="{{ url_for('static', filename='uploads/' + d.proof) }}" target="_blank">
+                        <img src="{{ url_for('static', filename='uploads/' + d.proof) }}" class="screenshot-img" alt="Proof" style="max-width: 50px; border-radius: 4px;">
+                    </a>
+                    {% else %}
+                    <span class="text-muted">No Proof</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% if not approved_deposits %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">ابھی تک کوئی ڈیپوزٹ اپروو نہیں کیا گیا۔</td>
+            </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Pending Withdrawals Section ================= -->
+<div id="pending-withdrawals" class="tab-content" style="display: none;">
+    <h3>Pending Withdrawals</h3>
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Amount</th>
+                <th>Coins</th>
+                <th>Method</th>
+                <th>Account</th>
+                <th>Trx ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in withdrawals %}
+            <tr>
+                <td>{{ w.username }}</td>
+                <td>{{ w.amount }}</td>
+                <td>{{ w.coins }}</td>
+                <td>{{ w.method }}</td>
+                <td>{{ w.account_number }}</td>
+                <td>{{ w.trx_id if w.trx_id else 'No Trx ID' }}</td>
+                <td>
+                    <a href="/approve_withdraw/{{ w.id }}" class="btn btn-success btn-sm">Approve</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Approved Withdrawals Section ================= -->
+<div id="approved-withdrawals" class="tab-content" style="display: none;">
+    <h3>Approved Withdrawals</h3>
+    <div class="d-flex gap-2 mb-3">
+        <input type="text" id="withdrawSearchInput" class="form-control bg-dark text-light border-secondary" placeholder="Search Username or Trx ID..." style="max-width: 300px;">
+        <button type="button" onclick="searchTable('withdrawSearchInput', 'approvedWithdrawsTable')" class="btn btn-success px-4 fw-bold">Filter / Search</button>
+        <button type="button" onclick="resetSearch('withdrawSearchInput', 'approvedWithdrawsTable')" class="btn btn-secondary px-3">Reset</button>
+    </div>
+    <table id="approvedWithdrawsTable" class="table table-dark table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Amount</th>
+                <th>Coins</th>
+                <th>Method</th>
+                <th>Account</th>
+                <th>Trx ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for w in approved_withdrawals %}
+            <tr>
+                <td>{{ w.username }}</td>
+                <td>{{ w.amount }}</td>
+                <td>{{ w.coins }}</td>
+                <td>{{ w.method }}</td>
+                <td>{{ w.account_number }}</td>
+                <td>{{ w.trx_id if w.trx_id else 'No Trx ID' }}</td>
+                <td><span class="badge bg-success">Approved</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Announcements / Create Post Section ================= -->
+<div id="announcements-tab" class="tab-content" style="display: none;">
+    <h3>Publish New Announcement / Post</h3>
+    <div style="background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #333; margin-bottom: 30px;">
+        <!-- Form 6: Create Announcement -->
+        <form action="/add_announcement" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="mb-3">
+                <label class="form-label" style="color: #deff9a; font-weight: bold;">Post Title</label>
+                <input type="text" name="title" class="form-control" placeholder="Enter title" style="background: #222; color: #fff; border: 1px solid #444;" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label" style="color: #deff9a; font-weight: bold;">Content / Description</label>
+                <textarea name="content" class="form-control" rows="4" placeholder="Write announcement details..." style="background: #222; color: #fff; border: 1px solid #444;" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" style="color: #deff9a; font-weight: bold;">Media Type</label>
+                <select name="media_type" id="media_type_select" class="form-select" style="background: #222; color: #fff; border: 1px solid #444;" onchange="toggleMediaInput()">
+                    <option value="text">Text Only</option>
+                    <option value="image">Image File</option>
+                    <option value="video">Video File</option>
+                    <option value="youtube">YouTube Video URL</option>
+                </select>
+            </div>
+
+            <!-- Image/Video File Input -->
+            <div class="mb-3" id="file_input_div" style="display: none;">
+                <label class="form-label" style="color: #deff9a; font-weight: bold;">Upload File</label>
+                <input type="file" name="file" class="form-control" style="background: #222; color: #fff; border: 1px solid #444;">
+            </div>
+
+            <!-- YouTube URL Input -->
+            <div class="mb-3" id="youtube_input_div" style="display: none;">
+                <label class="form-label" style="color: #deff9a; font-weight: bold;">YouTube Video URL</label>
+                <input type="url" name="youtube_url" class="form-control" placeholder="https://www.youtube.com/watch?v=..." style="background: #222; color: #fff; border: 1px solid #444;">
+            </div>
+
+            <button type="submit" class="btn btn-success" style="font-weight: bold; padding: 8px 24px;">Publish Announcement</button>
+        </form>
+    </div>
+
+    <h3>Existing Announcements</h3>
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Media</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if announcements %}
+                {% for a in announcements %}
+                <tr>
+                    <td>{{ a.id }}</td>
+                    <td><strong>{{ a.title }}</strong></td>
+                    <td><span class="badge bg-info text-dark">{{ a.media_type }}</span></td>
+                    <td>
+                        {% if a.media_type == 'image' and a.media_url %}
+                            <img src="{{ url_for('static', filename=a.media_url) }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                        {% elif a.media_type == 'youtube' and a.media_url %}
+                            <a href="https://www.youtube.com/watch?v={{ a.media_url }}" target="_blank" class="btn btn-sm btn-outline-warning">Watch Video</a>
+                        {% elif a.media_type == 'video' and a.media_url %}
+                            <span class="badge bg-secondary">Video File</span>
+                        {% else %}
+                            <span class="text-muted">No Media</span>
+                        {% endif %}
+                    </td>
+                    <td><small style="color: #aaa;">{{ a.created_at if a.created_at else 'N/A' }}</small></td>
+                    <td>
+                        <!-- Form 7: Delete Announcement -->
+                        <form action="/delete_announcement/{{ a.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this post?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="6" class="text-center text-muted">کوئی اعلان یا پوسٹ نہیں مل سکا۔</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ================= Logs Section ================= -->
+<div id="activity-logs" class="tab-content" style="display: none;">
+    <h3>Activity Logs</h3>
+    <table class="table table-dark table-hover align-middle">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>Performed By</th>
+            <th>Action & Details</th>
+            <th>Date & Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.id }}</td>
+            <td>
+                {% if 'deposit' in log.action|lower or 'دپازٹ' in log.action %}
+                    <span class="badge bg-success">Deposit</span>
+                {% elif 'withdraw' in log.action|lower or 'ودڈرا' in log.action %}
+                    <span class="badge bg-warning text-dark">Withdraw</span>
+                {% elif 'user' in log.action|lower or 'اپروو' in log.action %}
+                    <span class="badge bg-primary">User Approval</span>
+                {% elif 'convert' in log.action|lower or 'کوائن' in log.action %}
+                    <span class="badge bg-info text-dark">Coin Convert</span>
+                {% elif 'balance' in log.action|lower or 'کوائنز' in log.action %}
+                    <span class="badge bg-danger">Balance Control</span>
+                {% else %}
+                    <span class="badge bg-secondary">System</span>
+                {% endif %}
+            </td>
+            <td>
+                <span class="fw-bold text-info">@{{ log.username if log.username else 'admin' }}</span>
+            </td>
+            <td>
+                <span class="text-light">{{ log.action }}</span>
+            </td>
+            <td>
+                <small class="text-muted">{{ log.timestamp }}</small>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<!-- JavaScript Section -->
+<script>
+function searchTable(inputId, tableId) {
+    let input = document.getElementById(inputId);
+    let filter = input.value.toLowerCase().trim();
+    let table = document.getElementById(tableId);
+    let tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        let row = tr[i];
+        let textContent = row.textContent || row.innerText;
+        
+        if (textContent.toLowerCase().indexOf(filter) > -1) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    }
+}
+
+function resetSearch(inputId, tableId) {
+    document.getElementById(inputId).value = "";
+    searchTable(inputId, tableId);
+}
+
+function showTab(btn, tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabName).style.display = 'block';
+    btn.classList.add('active');
+}
+
+function toggleMediaInput() {
+    var type = document.getElementById('media_type_select').value;
+    var fileDiv = document.getElementById('file_input_div');
+    var ytDiv = document.getElementById('youtube_input_div');
+
+    if (type === 'image' || type === 'video') {
+        fileDiv.style.display = 'block';
+        ytDiv.style.display = 'none';
+    } else if (type === 'youtube') {
+        fileDiv.style.display = 'none';
+        ytDiv.style.display = 'block';
+    } else {
+        fileDiv.style.display = 'none';
+        ytDiv.style.display = 'none';
+    }
+}
+</script>
+
+</body>
+</html>

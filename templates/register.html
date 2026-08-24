@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Account - Smart Coin</title>
+    <!-- FontAwesome Input Icons کے لیے -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(15, 23, 42, 0.25), rgba(15, 23, 42, 0.35)), 
+                        url('https://images.unsplash.com/photo-1611689342806-0863700ce1e4?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .register-container {
+            background: linear-gradient(145deg, #111827, #1f2937);
+            border: 1px solid #374151;
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header-section h2 {
+            color: #f39c12;
+            margin: 10px 0 5px 0;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
+        /* Flash Messages Alert Style */
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .alert-error, .alert-danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+        }
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #86efac;
+        }
+
+        .profile-preview-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px dashed #f39c12;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1f2937;
+            color: #9ca3af;
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .profile-circle:hover {
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            background-color: #1a2333;
+            border-top: 1px solid #4b5563;
+            border-left: 1px solid #4b5563;
+            border-right: 2px solid #0f172a;
+            border-bottom: 3px solid #0f172a;
+            border-radius: 10px;
+            color: #ffffff;
+            box-sizing: border-box;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), inset 1px 1px 0px rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .form-control:focus {
+            outline: none;
+            background-color: #151c28;
+            border-top: 2px solid #0f172a;
+            border-left: 2px solid #0f172a;
+            border-right: 1px solid #f39c12;
+            border-bottom: 1px solid #f39c12;
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(90deg, #e67e22, #f39c12);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .login-link a {
+            color: #f39c12;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <div class="header-section">
+        <h2>Create New Account</h2>
+    </div>
+
+    <!-- Flask Flash Messages ڈسپلے کرنے کے لیے -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="/register" method="POST" enctype="multipart/form-data">
+        <!-- CSRF Token (Security کے لیے لازمی) -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <!-- Referred By Hidden Field -->
+        <input type="hidden" name="referred_by" value="{{ ref_code or '' }}">
+        
+        <!-- تصویر اپلوڈ کرنے والا گول دائرہ -->
+        <div class="profile-preview-wrapper">
+            <div class="profile-circle" onclick="document.getElementById('profile_pic').click();">
+                <span id="upload-text"><i class="fa fa-camera" style="font-size: 15px; display:block; margin-bottom:5px;"></i>Upload Profile Pic</span>
+                <img id="image-preview" style="display:none; width:100%; height:100%; object-fit:cover;" />
+            </div>
+            <input type="file" id="profile_pic" name="profile_pic" style="display: none;" onchange="previewImage(event)" required>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+            <label>Full Name</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-user-tag"></i>
+                <input type="text" class="form-control" name="name" placeholder="Enter full name" required>
+            </div>
+        </div>
+
+        <!-- Username -->
+        <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-icon-wrapper" style="position: relative; display: flex; align-items: center;">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Add User..." required>
+                <!-- یہ ہے وہ اہم Span جو ٹک/کراس دکھائے گا -->
+                <span id="username-icon" style="display: none; position: absolute; right: 15px;"></span>
+            </div>
+            <small id="username-msg" style="font-weight: 600; display: block; margin-top: 4px;"></small>
+        </div>
+
+        <!-- Father Name -->
+        <div class="form-group">
+            <label>Father Name</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-user-friends"></i>
+                <input type="text" class="form-control" name="father_name" placeholder="Enter father's name" required>
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <label>Password</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-lock"></i>
+                <input type="password" class="form-control" name="password" id="password" placeholder="Enter password" minlength="8" required>
+                <span onclick="togglePassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; z-index: 10;">
+                    👁️
+                </span>
+            </div>
+            <small id="password-msg" style="display: block; margin-top: 5px; font-weight: normal; color: #aaa; font-size: 12px;">
+                Password must be at least 8 characters long.
+            </small>
+        </div>
+
+        <!-- ID Card No -->
+        <div class="form-group">
+            <label>ID Card No</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-id-card"></i>
+                <input type="text" class="form-control" name="id_card" placeholder="Enter CNIC / ID Card number" required>
+            </div>
+        </div>
+
+        <!-- Mobile No -->
+        <div class="form-group">
+            <label>Mobile No</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-phone"></i>
+                <input type="text" class="form-control" name="mobile_no" placeholder="Enter mobile number" required>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label>Email Address</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" class="form-control" name="email" placeholder="Enter email address" required>
+            </div>
+        </div>
+
+        <!-- City -->
+        <div class="form-group">
+            <label>City</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-city"></i>
+                <input type="text" class="form-control" name="city" placeholder="Enter city name" required>
+            </div>
+        </div>
+
+        <!-- 2. اکاؤنٹ فیس کی معلومات -->
+        <div class="payment-info-box" style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #deff9a;">
+            <h4 style="color: #deff9a; margin-top: 0;">Account Registration Fee: Rs. 2000 PKR</h4>
+            <p style="font-size: 13px; color: #ccc;">Send the Registration Fee 2000 to any Account and Attach Proof of Payment:</p>
+            <ul style="font-size: 13px; color: #fff; padding-left: 20px;">
+                <li><strong>JazzCash TiL ID:</strong> 980-871-724 (Prince Mobile)</li>
+                <li><strong>EasyPaisa:</strong> 03471643865 (Farah)</li>
+                <li><strong>Bank Account:</strong> ************** (Smart Coin)</li>
+                <li><strong>Payoneer:</strong> 54112098 (Smart Coin)</li>
+            </ul>
+        </div>
+
+        <!-- 3. پیمنٹ کا طریقہ، Trx ID اور سکرین شاٹ اپلوڈ فیلڈز -->
+        <div class="form-group">
+            <label>Payment Method:</label>
+            <select name="payment_method" required style="width: 100%; padding: 10px; background: #1a2333; color: #fff; border: 1px solid #4b5563; border-radius: 8px;">
+                <option value="JazzCash">JazzCash</option>
+                <option value="EasyPaisa">EasyPaisa</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Transaction ID (Trx ID):</label>
+            <div class="input-icon-wrapper">
+                <i class="fas fa-receipt"></i>
+                <input type="text" name="trx_id" placeholder="Enter Transaction ID" required class="form-control">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Payment Receipt / Screenshot:</label>
+            <input type="file" name="deposit_proof" accept="image/*" required style="width: 100%; color: #fff; margin-top: 5px;">
+        </div>
+
+        <button type="submit" class="btn-submit">Register Now</button>
+    </form>
+
+    <div class="login-link">
+        Already have an account? <a href="/login">Login here</a>
+    </div>
+</div>
+
+<script>
+    const usernameInput = document.getElementById('username');
+    const iconSpan = document.getElementById('username-icon');
+    const msgSmall = document.getElementById('username-msg');
+
+    usernameInput.addEventListener('input', function() {
+        const username = this.value.trim();
+        
+        if (username.length < 3) {
+            iconSpan.style.display = 'none';
+            msgSmall.textContent = 'کم از کم 3 حروف درج کریں';
+            msgSmall.style.color = '#aaa';
+            return;
+        }
+
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+        fetch('/check_username', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({ username: username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // یہ لائن بہت اہم ہے! براؤزر کے کنسول میں دیکھیں کہ سرور کیا بھیج رہا ہے
+            console.log("Server status received:", data.status); 
+
+            iconSpan.style.display = 'inline-block';
+
+            if (data.status === 'taken') {
+                iconSpan.innerHTML = '<span style="color:red; font-weight:bold;">❌</span>';
+                msgSmall.style.color = 'red';
+                msgSmall.textContent = '❌ ' + (data.message || 'Username taken');
+            } else {
+                iconSpan.innerHTML = '<span style="color:green; font-weight:bold;">✅</span>';
+                msgSmall.style.color = 'green';
+                msgSmall.textContent = '✅ ' + (data.message || 'Username available');
+            }
+        })
+        .catch(err => console.error("Error:", err));
+    });
+    function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('image-preview');
+    const text = document.getElementById('upload-text');
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            text.style.display = 'none';
+        }
+
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+</body>
+</html>

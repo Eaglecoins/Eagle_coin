@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deposit Money - Smart Coin</title>
+    <!-- آئیکنز کے لیے FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: sans-serif; background: #0f0f0f; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 500px; width: 100%; }
+        h1 { text-align: center; color: #deff9a; margin-bottom: 5px; }
+        .back-link { display: inline-block; color: #b2bec3; text-decoration: none; margin-bottom: 20px; font-weight: bold; transition: 0.3s; }
+        .back-link:hover { color: #deff9a; }
+        
+        /* ایڈمن اکاؤنٹس ڈسپلے باکس */
+        .admin-accounts-card { background: #1e272e; padding: 20px; border-radius: 12px; border: 1px solid #341f97; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .admin-accounts-card h3 { color: #deff9a; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px; font-size: 1.2rem; }
+        .account-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 6px; }
+        .account-row strong { color: #00cec9; }
+        
+        /* کیو آر کوڈ اسٹائل */
+        .qr-section { text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #444; }
+        .qr-box { background: #fff; padding: 10px; display: inline-block; border-radius: 8px; margin-top: 8px; }
+        .qr-box img { width: 130px; height: 130px; display: block; object-fit: contain; }
+
+        /* فارم اسٹائلز */
+        form { background: #1a1a1a; padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 1px solid #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #b2bec3; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; margin-top: 6px; background: #2d3436; border: 1px solid #4b5563; border-radius: 8px; color: #fff; box-sizing: border-box; font-size: 1rem; transition: 0.3s; }
+        input:focus, select:focus { border-color: #deff9a; outline: none; box-shadow: 0 0 5px rgba(222, 255, 154, 0.4); }
+        
+        /* فائل اپلوڈر پریمیم لک */
+        input[type="file"] { padding: 8px; background: #262626; cursor: pointer; border: 1px dashed #555; }
+        
+        button { background-color: #deff9a; color: #000; padding: 14px; border: none; border-radius: 8px; width: 100%; margin-top: 25px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.3s; }
+        button:hover { background-color: #c5e67a; transform: translateY(-2px); }
+        
+        .whatsapp-notice { background: rgba(46, 204, 113, 0.15); color: #2ecc71; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 20px; border: 1px solid rgba(46, 204, 113, 0.3); font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        
+        <h1>Deposit Money</h1>
+        
+        <div class="whatsapp-notice">
+            <i class="fab fa-whatsapp"></i> آپ یہاں واٹس ایپ پر رابطہ کر کے بھی کوائن خرید سکتے ہیں: 03075144144
+        </div>
+        
+        <!-- فلیش میسجز کا ڈسپلے -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="color: #ff4d4d; font-weight: bold; margin-bottom: 15px; text-align: center; background: rgba(255,77,77,0.1); padding: 10px; border-radius: 6px;">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- ایڈمن پیمنٹ اکاؤنٹس جہاں یوزر پیسے بھیجے گا -->
+        <div class="admin-accounts-card">
+            <h3><i class="fas fa-university"></i> Admin Payment Accounts</h3>
+            <p style="font-size: 0.85rem; color: #b2bec3; margin-top: -5px; margin-bottom: 15px;">براہ کرم نیچے دیے گئے کسی بھی اکاؤنٹ پر رقم بھیج کر اسکرین شاٹ اپلوڈ کریں۔</p>
+            
+            <div class="account-row">
+                <span>Easypaisa:</span>
+                <strong>03016532865 (Admin Name)</strong>
+            </div>
+            <div class="account-row">
+                <span>JazzCash:</span>
+                <strong>03000000000 (Admin Name)</strong>
+            </div>
+            <div class="account-row">
+                <span>Bank Account:</span>
+                <strong>HBL: 1234567890123</strong>
+            </div>
+            <div class="account-row">
+                <span>Payoneer:</span>
+                <strong> 54112098</strong>
+            </div>
+            
+            <!-- کیو آر کوڈ کا سیکشن -->
+            <div class="qr-section">
+                <span style="font-size: 0.9rem; color: #deff9a; font-weight: bold;"><i class="fas fa-qrcode"></i> Scan QR Code to Pay</span>
+                <br>
+                <div class="qr-box">
+                    <img src="{{ url_for('static', filename='images/Bank_QR.jpeg') }}" alt="QR Code" style="width: 250px; height: auto;">
+                </div>
+                <div class="account-row">
+                <span>TiLL ID - JazzCash:</span>
+                <strong>980-871-724</strong>
+                <span>Prince Mobile</span>
+            </div>
+            </div>
+        </div>
+ 
+        <!-- ڈپازٹ فارم -->
+        <form action="/deposit" method="POST" enctype="multipart/form-data">
+            
+            <!-- Amount Input (اب یہ اوپر آئے گا اور یوزر اس میں رقم لکھ سکے گا) -->
+            <label for="amount"><i class="fas fa-money-bill-wave"></i> Deposit Amount (PKR):</label>
+            <input type="number" step="any" id="amount" name="amount" required placeholder="رقم درج کریں (مثلاً 1000)">
+
+            <!-- Auto-calculated Coins Input (اب یہ نیچے آئے گا اور لاک ہوگا) -->
+            <label for="coins"><i class="fas fa-coins"></i> Deposit Coins</label>
+            <input type="text" id="coins" name="coins" readonly placeholder="کوائنز کی تعداد خود بخود آئے گی" style="background: #222;">
+            <!-- Method Selection -->
+            <label for="method"><i class="fas fa-wallet"></i> Select Account (جس پر آپ نے رقم بھیجی)</label>
+            <select name="method" id="method">
+                <option value="easypaisa">Easypaisa</option>
+                <option value="jazzcash">Jazzcash</option>
+                <option value="bank">BankAccount</option>
+                <option value="payoneer">Payoneer</option>
+            </select>
+
+            <!-- Account & IBAN Inputs -->
+            <label for="account_number"><i class="fas fa-user-circle"></i> Your Account / Sender Number</label>
+            <input type="text" id="account_number" name="account_number" required placeholder="اپنا نمبر یا اکاؤنٹ لکھیں جہاں سے پیسے بھیجے">
+
+            <label for="iban"><i class="fas fa-fingerprint"></i> IBAN Number (Optional)</label>
+            <input type="text" id="iban" name="iban" placeholder="بینک ٹرانسفر کے لیے آئی بی اے این لکھیں">
+            
+            <!-- سکرین شاٹ اپلوڈ فیلڈ -->
+            <label for="payment_proof"><i class="fas fa-image"></i> Upload Payment Proof (Screenshot):</label>
+            <input type="file" id="payment_proof" name="payment_proof" accept="image/*" required>
+            
+            <button type="submit"><i class="fas fa-paper-plane"></i> Submit Deposit Request</button>
+        </form>
+    </div>
+
+    <!-- لائیو ریٹ آٹو کیلکولیشن اسکرپٹ -->
+    <script>
+    function calculateCoins() {
+        const coinsInput = document.getElementById('coins');
+        const amountInput = document.getElementById('amount');
+        
+        // پائتھون سے آنے والا لائیو ریٹ
+        const rate = parseFloat("{{ rate }}");
+
+        if (coinsInput && amountInput && rate > 0) {
+            const amount = parseFloat(amountInput.value);
+
+            if (!isNaN(amount) && amount > 0) {
+                // اماؤنٹ کو ریٹ پر ڈیوائیڈ کر کے کوائنز کی تعداد نکالیں
+                coinsInput.value = (amount / rate).toFixed(2);
+            } else {
+                coinsInput.value = "";
+            }
+        }
+    }
+
+    // اب ایونٹ لسٹنر 'amount' والے ان پٹ پر لگے گا
+    const amountField = document.getElementById('amount');
+    if (amountField) {
+        amountField.addEventListener('input', calculateCoins);
+    }
+</script>
+</body>
+</html>

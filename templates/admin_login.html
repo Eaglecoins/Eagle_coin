@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Coin System - Admin Login</title>
+    <style>
+        body.login-body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.7)), 
+                        url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card-3d {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 360px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+        }
+
+        .eagle-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 15px auto;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+        }
+
+        .eagle-icon {
+            font-size: 32px;
+            color: #60a5fa;
+        }
+
+        .login-card-3d h2 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .login-card-3d p {
+            margin: 0 0 25px 0;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .input-box {
+            margin-bottom: 20px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .btn-login-3d {
+            width: 100%;
+            padding: 12px;
+            background: #00d2ff;
+            border: none;
+            border-radius: 10px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-login-3d:hover {
+            background: #0087ff;
+        }
+    </style>
+</head>
+<body class="login-body">
+
+<div class="login-card-3d">
+    <div class="eagle-container">
+        <img src="{{ url_for('static', filename='coin1.jpeg') }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+    </div>
+    <h2>Eagle Coin System</h2>
+    <p>Admin Access Control</p>
+
+    <form action="{{ url_for('admin.admin_login') }}" method="POST">
+        <div class="input-box">
+            <input type="password" name="password" placeholder="ایڈمن سیکرٹ کوڈ درج کریں..." required>
+        </div>
+        <button type="submit" class="btn-login-3d">Login to Dashboard</button>
+    </form>
+</div>
+
+</body>
+</html>
