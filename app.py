@@ -48,7 +48,6 @@ def admin_required(f):
  
 # Database Initialization
 with app.app_context():
-    create_table.create_tables()
     database.init_db()
     conn = database.get_db_connection()
     
