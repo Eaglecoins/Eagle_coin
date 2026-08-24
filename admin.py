@@ -159,8 +159,11 @@ def admin_dashboard():
 def admin_panel():
     conn = database.get_db_connection()
     try:
-        admin_data = conn.execute("SELECT balance, ref_balance, coin_rate, total_balance FROM admin_settings LIMIT 1").fetchone()
-        admin_balance = float(admin_data['balance']) if (admin_data and admin_data['balance']) else 0.0
+        admin_data = conn.execute("SELECT * FROM admin_settings LIMIT 1").fetchone()
+        admin_balance = float(admin_data['balance']) if (admin_data and 'balance' in admin_data.keys() and admin_data['balance']) else 0.0
+    except Exception as db_err:
+        admin_data = None
+        admin_balance = 0.0
 
         # --- Search, Filter and Pagination Logic ---
         target_username = request.args.get('target_username', '').strip()
