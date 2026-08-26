@@ -347,62 +347,90 @@
     const iconSpan = document.getElementById('username-icon');
     const msgSmall = document.getElementById('username-msg');
 
-    usernameInput.addEventListener('input', function() {
-        const username = this.value.trim();
-        
-        if (username.length < 3) {
-            iconSpan.style.display = 'none';
-            msgSmall.textContent = 'کم از کم 3 حروف درج کریں';
-            msgSmall.style.color = '#aaa';
-            return;
-        }
-
-        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-
-        fetch('/check_username', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken
-            },
-            body: JSON.stringify({ username: username })
-        })
-        .then(response => response.json())
-        .then(data => {
-            // یہ لائن بہت اہم ہے! براؤزر کے کنسول میں دیکھیں کہ سرور کیا بھیج رہا ہے
-            console.log("Server status received:", data.status); 
-
-            iconSpan.style.display = 'inline-block';
-
-            if (data.status === 'taken') {
-                iconSpan.innerHTML = '<span style="color:red; font-weight:bold;">❌</span>';
-                msgSmall.style.color = 'red';
-                msgSmall.textContent = '❌ ' + (data.message || 'Username taken');
-            } else {
-                iconSpan.innerHTML = '<span style="color:green; font-weight:bold;">✅</span>';
-                msgSmall.style.color = 'green';
-                msgSmall.textContent = '✅ ' + (data.message || 'Username available');
+    if (usernameInput) {
+        usernameInput.addEventListener('input', function() {
+            const username = this.value.trim();
+            
+            if (username.length < 3) {
+                if (iconSpan) iconSpan.style.display = 'none';
+                if (msgSmall) {
+                    msgSmall.textContent = 'کم از کم 3 حروف درج کریں';
+                    msgSmall.style.color = '#aaa';
+                }
+                return;
             }
-        })
-        .catch(err => console.error("Error:", err));
-    });
-    function previewImage(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById('image-preview');
-    const text = document.getElementById('upload-text');
 
-    if (file) {
-        const reader = new FileReader();
+            const csrfInput = document.querySelector('input[name="csrf_token"]');
+            const csrfToken = csrfInput ? csrfInput.value : '';
 
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-            text.style.display = 'none';
-        }
+            fetch('/check_username', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ username: username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (iconSpan) iconSpan.style.display = 'inline-block';
 
-        reader.readAsDataURL(file);
+                if (data.status === 'taken') {
+                    if (iconSpan) iconSpan.innerHTML = '<span style="color:red; font-weight:bold;">❌</span>';
+                    if (msgSmall) {
+                        msgSmall.style.color = 'red';
+                        msgSmall.textContent = '❌ ' + (data.message || 'Username taken');
+                    }
+                } else {
+                    if (iconSpan) iconSpan.innerHTML = '<span style="color:green; font-weight:bold;">✅</span>';
+                    if (msgSmall) {
+                        msgSmall.style.color = 'green';
+                        msgSmall.textContent = '✅ ' + (data.message || 'Username available');
+                    }
+                }
+            })
+            .catch(err => console.error("Error:", err));
+        });
     }
-}
+
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('image-preview');
+        const text = document.getElementById('upload-text');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (preview) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                if (text) text.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function toggleRegPassword() {
+        var passInput = document.getElementById("reg-password");
+        var eyeIcon = document.querySelector(".input-icon-wrapper span[onclick='toggleRegPassword()'] i");
+
+        if (passInput) {
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                if (eyeIcon) {
+                    eyeIcon.classList.remove("fa-eye");
+                    eyeIcon.classList.add("fa-eye-slash");
+                }
+            } else {
+                passInput.type = "password";
+                if (eyeIcon) {
+                    eyeIcon.classList.remove("fa-eye-slash");
+                    eyeIcon.classList.add("fa-eye");
+                }
+            }
+        }
+    }
 </script>
 </body>
 </html>
