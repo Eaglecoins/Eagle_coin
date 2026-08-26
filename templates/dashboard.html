@@ -142,7 +142,7 @@
     <!-- ریفرل لنک پروفائل کے بالکل نیچے -->
     <div style="margin-top: 15px;">
         <p style="margin: 0;">Referral Link: 
-            <input type="text" id="reflink" value="{{ request.host_url }}register?ref={{ user['referral_code'] }}" readonly style="...">
+            value="https://eaglecoin.pythonanywhere.com/register?ref={{ user['referral_code'] }}"
             <button onclick="copyLink()" style="background: #deff9a; cursor: pointer; padding: 5px 10px; border:none; border-radius:3px; font-weight: bold;">Copy</button>
         </p>
     </div>
