@@ -469,7 +469,7 @@ def register():
 
         if success:
             flash("Your account has been successfully submitted. Admin will approve it after verifying your payment.", "success")
-            flash("مزید معلومات کے لیے WhatsApp پر رابطہ کریں: 03075144144", "info")
+            flash("مزید معلومات کے لیے WhatsApp پر رابطہ کریں: 03430786398", "info")
             return redirect(url_for("auth.login"))
 
         flash("Registration failed. Please check your information and try again.", "danger")
@@ -602,10 +602,10 @@ def convert_bonus():
         # =========================================================
         # ⚙️ RATE CONTROL CONFIGURATION (کنٹرول سیٹنگز)
         # =========================================================
-        USE_FIXED_RATE = False   # True = فکس ریٹ چلے گا | False = لائیو ریٹ چلے گا
-        FIXED_RATE_VALUE = 50.0  # یہاں اپنی مرضی کا فکس ریٹ درج کریں
+        USE_FIXED_RATE = True   # True = فکس ریٹ چلے گا | False = لائیو ریٹ چلے گا
+        FIXED_RATE_VALUE = 0.01  # یہاں اپنی مرضی کا فکس ریٹ درج کریں
         # =========================================================
-
+  
         if USE_FIXED_RATE:
             current_rate = FIXED_RATE_VALUE
         else:

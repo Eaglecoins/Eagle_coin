@@ -25,7 +25,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # 2. جب آپ ویب سائٹ پر SSL (HTTPS) لگا لیں گے، تو اس لائن کو بھی ان کمنٹ کر دیجیے گا:
 # app.config['SESSION_COOKIE_SECURE'] = True
-DB_PATH = 'database.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'database.db')
 
 # --- [ 2. بلو پرنٹس رجسٹریشن ] ---
 app.register_blueprint(auth_bp)

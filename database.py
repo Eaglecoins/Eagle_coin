@@ -2,9 +2,11 @@ import sqlite3
 import hashlib
 import uuid
 import logging
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-DB_NAME = 'database.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_NAME = os.path.join(BASE_DIR, 'database.db')
 
 # ایررز کو فائل میں ریکارڈ کرنے کے لیے
 logging.basicConfig(filename='app_errors.log', level=logging.ERROR)

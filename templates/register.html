@@ -248,8 +248,8 @@
             <label>Password</label>
             <div class="input-icon-wrapper">
                 <i class="fas fa-lock"></i>
-                <input type="password" class="form-control" name="password" id="password" placeholder="Enter password" minlength="8" required>
-                <span onclick="togglePassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; z-index: 10;">
+                <input type="password" class="form-control" name="password" id="reg-password" placeholder="Enter password" minlength="8" required>
+                <span onclick="toggleRegPassword()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa; z-index: 10;">
                     👁️
                 </span>
             </div>
@@ -299,12 +299,17 @@
             <h4 style="color: #deff9a; margin-top: 0;">Account Registration Fee: Rs. 2000 PKR</h4>
             <p style="font-size: 13px; color: #ccc;">Send the Registration Fee 2000 to any Account and Attach Proof of Payment:</p>
             <ul style="font-size: 13px; color: #fff; padding-left: 20px;">
+                <span style="font-size: 0.9rem; color: #deff9a; font-weight: bold;"><i class="fas fa-qrcode"></i> Scan QR Code to Pay</span>
+                <br>
+                <div class="qr-box">
+                    <img src="{{ url_for('static', filename='images/Bank_QR.jpeg') }}" alt="QR Code" style="width: 250px; height: auto;">
                 <li><strong>JazzCash TiL ID:</strong> 980-871-724 (Prince Mobile)</li>
                 <li><strong>EasyPaisa:</strong> 03471643865 (Farah)</li>
                 <li><strong>Bank Account:</strong> ************** (Smart Coin)</li>
                 <li><strong>Payoneer:</strong> 54112098 (Smart Coin)</li>
             </ul>
         </div>
+
 
         <!-- 3. پیمنٹ کا طریقہ، Trx ID اور سکرین شاٹ اپلوڈ فیلڈز -->
         <div class="form-group">
