@@ -1,4 +1,45 @@
-{% macro render_tree(nodes) %}
+<style>
+    .profile-avatar-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+    .frame-super-leader img, .frame-super-leader div {
+        border: 3px solid #ffd700 !important;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 25px rgba(255, 140, 0, 0.6) !important;
+    }
+    .frame-leader img, .frame-leader div {
+        border: 3px solid #ffeb3b !important;
+        box-shadow: 0 0 12px rgba(255, 235, 59, 0.8) !important;
+    }
+    .frame-user img, .frame-user div {
+        border: 2px solid #00d2ff !important;
+        box-shadow: 0 0 8px rgba(0, 210, 255, 0.5) !important;
+    }
+    .user-role-badge {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        margin-left: 8px;
+        display: inline-block;
+    }
+    .badge-super-leader {
+        background: linear-gradient(45deg, #ff8c00, #ffd700);
+        color: #000;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    }
+    .badge-leader {
+        background-color: #ffeb3b;
+        color: #000;
+        box-shadow: 0 0 6px rgba(255, 235, 59, 0.8);
+    }
+    .badge-user {
+        background-color: #00d2ff;
+        color: #000;
+        box-shadow: 0 0 6px rgba(0, 210, 255, 0.6);
+        }
+        </style>
+        {% macro render_tree(nodes) %}
     <ul class="tree-list" style="list-style-type: none; padding-left: 20px;">
         {% for node in nodes %}
             <li style="margin: 8px 0;">
@@ -112,25 +153,41 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
         
         <!-- بائیں طرف: پروفائل پکچر، بیلنس اور ریفرل کوڈ -->
-        <div class="profile-section" style="display: flex; align-items: center; gap: 15px;">
-            <form action="/upload_profile_pic" method="POST" enctype="multipart/form-data" id="picForm" style="position: relative; cursor: pointer;">
-                <label for="fileInput" style="cursor: pointer;">
-                    {% if user['profile_pic'] and user['profile_pic'] != 'default.png' %}
-                        <img src="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" class="profile-img" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #555;" title="Click to change profile picture">
-                    {% else %}
-                        <div class="no-img" style="width: 70px; height: 70px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; font-size: 12px; text-align: center;">No Image</div>
-                    {% endif %}
-                </label>
-                <input type="file" id="fileInput" name="file" accept="image/*" required style="display: none;" onchange="document.getElementById('picForm').submit();">
-            </form>
-            
-            <div>
-                <!-- یوزر کا نام شو کروانے کے لیے یہ لائن ایڈ کر دی گئی ہے -->
-                <h3 style="margin: 0 0 3px 0; color: #00ff87;">{{ user.name or user.full_name or user.username }}</h3>
-                <h3 style="margin: 0 0 5px 0; font-size: 15px;">Account Balance: Rs. {{ "{:.2f}".format(balance|default(0.0)) }} PKR</h3>
-                <p style="margin: 0;">Referral Code: <strong>{{ user['referral_code'] }}</strong></p>
+            <div class="profile-section" style="display: flex; align-items: center; gap: 15px;">
+                <form action="/upload_profile_pic" method="POST" enctype="multipart/form-data" id="picForm" style="position: relative; cursor: pointer;">
+                    <label for="fileInput" style="cursor: pointer;">
+                        <!-- پروفائل تصویر کے گرد فریم (Glow Frame) -->
+                        <div class="profile-avatar-wrapper {% if user['role'] == 'Super Leader' %}frame-super-leader{% elif user['role'] == 'Leader' %}frame-leader{% else %}frame-user{% endif %}">
+                            {% if user['profile_pic'] and user['profile_pic'] != 'default.png' %}
+                                <img src="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" class="profile-img" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                <div class="no-img" style="width: 70px; height: 70px; border-radius: 50%; background: #444; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; font-size: 24px;">
+                                    {{ user['name'][0] if user['name'] else 'U' }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </label>
+                    <input type="file" id="fileInput" name="file" accept="image/*" required style="display: none;" onchange="document.getElementById('picForm').submit()">
+                </form>
+
+                <div>
+                    <!-- یوزر کا نام اور رول بیج -->
+                    <h3 style="margin: 0 0 3px 0; display: flex; align-items: center; flex-wrap: wrap; color: #00ff87;">
+                        {{ user['name'] if user['name'] else user['username'] }}
+                        
+                        {% if user['role'] == 'Super Leader' %}
+                            <span class="user-role-badge badge-super-leader">👑 Super Leader</span>
+                        {% elif user['role'] == 'Leader' %}
+                            <span class="user-role-badge badge-leader">⭐ Leader</span>
+                        {% else %}
+                            <span class="user-role-badge badge-user">👤 User</span>
+                        {% endif %}
+                    </h3>
+                    
+                    <h3 style="margin: 0 0 5px 0; font-size: 15px; color: #fff;">Account Balance: Rs. {{ "{:.2f}".format(balance|default(0.0)) }} PKR</h3>
+                    <p style="margin: 0; color: #ccc;">Referral Code: <strong>{{ user['referral_code'] }}</strong></p>
+                </div>
             </div>
-        </div>
         <!-- دائیں طرف: Deposit، Withdraw اور Logout کے بٹنز -->
         <div class="action-buttons" style="display: flex; gap: 10px; align-items: center;">
             <a href="/deposit" class="btn" style="padding: 10px 20px; background: #10b981; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold;">Deposit</a>

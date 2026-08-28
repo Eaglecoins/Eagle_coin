@@ -12,6 +12,28 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
+        .role-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .role-super-leader {
+            background: linear-gradient(45deg, #ff8c00, #ffd700);
+            color: #000;
+            box-shadow: 0 0 6px rgba(255, 140, 0, 0.8);
+        }
+        .role-leader {
+            background-color: #ffeb3b;
+            color: #000;
+            box-shadow: 0 0 6px rgba(255, 235, 59, 0.8);
+        }
+        .role-user {
+            background-color: #00d2ff;
+            color: #000;
+            box-shadow: 0 0 6px rgba(0, 210, 255, 0.8);
+        }
         body { background-color: #000; color: #fff; font-family: 'Urbanist', sans-serif; padding: 20px; }
         h3 { color: #deff9a; margin-bottom: 20px; }
         .stats-container { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
@@ -127,6 +149,7 @@
                 <th>Profile</th>
                 <th>User Details</th>
                 <th>Identity Details</th>
+                <th>Account Role</th>
                 <th>Fee Proof & Trx</th>
                 <th>Coins</th>
                 <th>Status</th>
@@ -158,6 +181,16 @@
                     <small><strong>CNIC:</strong> {{ user['id_card'] if user['id_card'] else 'N/A' }}</small><br>
                     <small><strong>Father:</strong> {{ user['father_name'] if user['father_name'] else 'N/A' }}</small><br>
                     <small style="color: #aaa;">{{ user['city'] if user['city'] else '' }} {{ user['region'] if user['region'] else '' }}</small>
+                </td>
+
+                <td>
+                    <form action="/admin/change_role/{{ user['id'] if user['id'] else user.id }}" method="POST" style="margin: 0;">
+                        <select name="role" onchange="this.form.submit()" style="background: #1e1e1e; color: #fff; border: 1px solid #555; border-radius: 4px; padding: 4px;">
+                            <option value="User" {% if user['role'] == 'User' or not user['role'] %}selected{% endif %}>User 👤</option>
+                            <option value="Leader" {% if user['role'] == 'Leader' %}selected{% endif %}>Leader ⭐</option>
+                            <option value="Super Leader" {% if user['role'] == 'Super Leader' %}selected{% endif %}>Super Leader 👑</option>
+                        </select>
+                    </form>
                 </td>
 
                 <td>

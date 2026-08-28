@@ -1,3 +1,4 @@
+import sqlite3
 import os
 import re
 import uuid
@@ -676,3 +677,21 @@ def delete_user(user_id):
     return redirect(url_for('admin.admin_panel'))
 
     return redirect(url_for('admin.admin_panel'))
+
+@admin_bp.route('/admin/change_role/<int:user_id>', methods=['POST'])
+def change_user_role(user_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin.admin_login'))
+
+    new_role = request.form.get('role')
+    
+    if new_role in ['User', 'Leader', 'Super Leader']:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET role = ? WHERE id = ?", (new_role, user_id))
+        conn.commit()
+        conn.close()
+        flash(f'یوزر کا رول کامیابی سے {new_role} میں تبدیل ہو گیا ہے!', 'success')
+    
+    # جس پیج سے درخواست آئی تھی اسی پر واپس ری ڈائریکٹ کر دے گا
+    return redirect(request.referrer or url_for('admin.admin_dashboard'))
