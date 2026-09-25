@@ -186,7 +186,7 @@ def login():
         success, user = database.verify_user(username, password)
         if success:
             if user['status'] != 'approved':
-                return "Wait for your account to be approved, or contact us on WhatsApp at 03430786893."
+                return "Wait for your account to be approved, or contact us on WhatsApp at 03075144144."
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['is_admin'] = user.get('is_admin', False)
@@ -599,7 +599,7 @@ def forgot_password():
         conn.commit()
         conn.close()
         
-        flash('Your request to reset your password has been successfully sent to the admin; for further information, please contact 03430786398 via WhatsApp.!', 'success')
+        flash('Your request to reset your password has been successfully sent to the admin; for further information, please contact 03075144144 via WhatsApp.!', 'success')
         return redirect(url_for('login'))
         
     return render_template('forgot_password.html')
